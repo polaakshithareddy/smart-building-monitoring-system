@@ -1,0 +1,2455 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Smart Building Automation and Monitoring System - Role-Based Management">
+    <title>Smart Building Automation &amp; Monitoring System</title>
+
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+
+    <style>
+        /* ===════════════════════════════════════════
+           DESIGN TOKENS
+        ════════════════════════════════════════════ */
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1d4ed8;
+            --secondary: #64748b;
+            --bg-body: #f1f5f9;
+            --bg-card: #ffffff;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --text-heading: #1e293b;
+            --radius: 12px;
+            --radius-lg: 16px;
+            --shadow-sm: 0 1px 3px rgba(0, 0, 0, .06), 0 1px 2px rgba(0, 0, 0, .04);
+            --shadow: 0 4px 12px rgba(0, 0, 0, .06), 0 1px 3px rgba(0, 0, 0, .04);
+            --shadow-hover: 0 8px 24px rgba(0, 0, 0, .10);
+            --border: #e2e8f0;
+            --sidebar-width: 240px;
+            --sidebar-collapsed-width: 70px;
+            --topbar-height: 60px;
+            --sidebar-bg: #0f172a;
+            --sidebar-accent: rgba(59, 130, 246, 0.18);
+        }
+
+        /* ── DARK MODE TOKENS ── */
+        [data-theme="dark"] {
+            --bg-body: #0f172a;
+            --bg-card: #1e293b;
+            --text-main: #e2e8f0;
+            --text-muted: #94a3b8;
+            --text-heading: #f1f5f9;
+            --border: #334155;
+            --shadow-sm: 0 1px 3px rgba(0, 0, 0, .3);
+            --shadow: 0 4px 12px rgba(0, 0, 0, .3);
+            --shadow-hover: 0 8px 24px rgba(0, 0, 0, .45);
+            --sidebar-bg: #020617;
+            --sidebar-accent: rgba(59, 130, 246, 0.25);
+        }
+
+        [data-theme="dark"] .auth-container {
+            background: linear-gradient(135deg, #0f172a, #1e293b);
+        }
+
+        [data-theme="dark"] .auth-card {
+            background: #1e293b;
+        }
+
+        [data-theme="dark"] .form-control {
+            background: #0f172a;
+            color: #e2e8f0;
+            border-color: #334155;
+        }
+
+        [data-theme="dark"] .form-select {
+            background: #0f172a;
+            color: #e2e8f0;
+            border-color: #334155;
+        }
+
+        [data-theme="dark"] .table {
+            color: var(--text-main);
+        }
+
+        [data-theme="dark"] .table-hover tbody tr:hover {
+            background: rgba(255, 255, 255, .04);
+        }
+
+        [data-theme="dark"] .kpi-block {
+            background: #0f172a;
+        }
+
+        [data-theme="dark"] .skeleton {
+            background: linear-gradient(90deg, #1e293b 25%, #334155 50%, #1e293b 75%);
+        }
+
+        [data-theme="dark"] .skeleton-stat {
+            background: #1e293b;
+        }
+
+        [data-theme="dark"] .alert-critical {
+            background: #3f1111;
+        }
+
+        [data-theme="dark"] .alert-warning {
+            background: #3d2d0a;
+        }
+
+        [data-theme="dark"] .alert-info {
+            background: #0e263e;
+        }
+
+        [data-theme="dark"] .alert-ok {
+            background: #0a2e1a;
+        }
+
+        [data-theme="dark"] .notif-dropdown {
+            background: #1e293b;
+            border-color: #334155;
+        }
+
+        [data-theme="dark"] .notif-item.unread {
+            background: #0e263e;
+        }
+
+        [data-theme="dark"] .notif-item:hover {
+            background: #334155;
+        }
+
+        [data-theme="dark"] .predict-item {
+            background: #0e263e;
+            border-color: #334155;
+        }
+
+        [data-theme="dark"] .btn-light {
+            background: #334155;
+            color: #e2e8f0;
+            border-color: #475569;
+        }
+
+
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            overflow-x: hidden;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        /* ===════════════════════════════════════════
+           AUTH PAGES
+        ════════════════════════════════════════════ */
+        .auth-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+            background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+        }
+
+        .auth-card {
+            background: var(--bg-card);
+            padding: 3rem 2.5rem;
+            border-radius: 20px;
+            box-shadow: var(--shadow);
+            width: 100%;
+            max-width: 460px;
+            text-align: center;
+            animation: fadeInScale .4s ease-out;
+        }
+
+        @keyframes fadeInScale {
+            from {
+                opacity: 0;
+                transform: scale(.96);
+            }
+
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .auth-logo {
+            width: 72px;
+            height: 72px;
+            background: #eff6ff;
+            color: var(--primary);
+            border-radius: 18px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.25rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .auth-title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--text-heading);
+            margin-bottom: .4rem;
+            line-height: 1.2;
+        }
+
+        .auth-subtitle {
+            color: var(--text-muted);
+            font-size: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .form-label {
+            display: block;
+            font-weight: 500;
+            margin-bottom: .4rem;
+            font-size: .9rem;
+        }
+
+        .input-group {
+            position: relative;
+            margin-bottom: 1.25rem;
+        }
+
+        .input-group i {
+            position: absolute;
+            left: .9rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+        }
+
+        .form-control {
+            width: 100%;
+            padding: .7rem 1rem .7rem 2.5rem;
+            border: 1.5px solid var(--border);
+            border-radius: var(--radius);
+            outline: none;
+            transition: all .2s;
+            font-size: .95rem;
+            background: #fafafa;
+            font-family: 'Outfit', sans-serif;
+        }
+
+        .form-control:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, .12);
+            background: #fff;
+        }
+
+        /* ===════════════════════════════════════════
+           SIDEBAR — EXPANDED
+        ════════════════════════════════════════════ */
+        .sidebar {
+            width: var(--sidebar-width);
+            background: var(--sidebar-bg);
+            color: white;
+            position: fixed;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            z-index: 200;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            transition: width .3s ease, transform .3s ease;
+            overflow: hidden;
+        }
+
+        /* COLLAPSED state */
+        .sidebar.collapsed {
+            width: var(--sidebar-collapsed-width);
+        }
+
+        .sidebar.collapsed .sidebar-brand-name,
+        .sidebar.collapsed .sidebar-section-label,
+        .sidebar.collapsed .nav-link-text,
+        .sidebar.collapsed .sidebar-footer-text {
+            opacity: 0;
+            width: 0;
+            overflow: hidden;
+            white-space: nowrap;
+            pointer-events: none;
+        }
+
+        .sidebar.collapsed .nav-link {
+            justify-content: center;
+            padding: .6rem 0;
+        }
+
+        .sidebar.collapsed .nav-link i {
+            margin: 0;
+        }
+
+        .sidebar.collapsed .sidebar-brand {
+            justify-content: center;
+            padding: 1.2rem 0;
+        }
+
+        .sidebar.collapsed .logout-btn-text {
+            display: none;
+        }
+
+        .sidebar.collapsed .logout-btn {
+            justify-content: center;
+            padding: .55rem;
+        }
+
+        /* Sidebar inner layout */
+        .sidebar-inner {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            padding: 0 .75rem 1rem;
+            overflow-y: auto;
+            overflow-x: hidden;
+        }
+
+        .sidebar-brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 1.2rem .5rem 1.2rem;
+            border-bottom: 1px solid rgba(255, 255, 255, .07);
+            margin-bottom: .5rem;
+            flex-shrink: 0;
+            min-height: var(--topbar-height);
+            transition: all .3s ease;
+        }
+
+        .sidebar-brand-icon {
+            width: 34px;
+            height: 34px;
+            border-radius: 8px;
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            color: white;
+            flex-shrink: 0;
+        }
+
+        .sidebar-brand-name {
+            font-size: 1rem;
+            font-weight: 700;
+            color: white;
+            letter-spacing: -.3px;
+            white-space: nowrap;
+            transition: opacity .25s ease, width .25s ease;
+        }
+
+        .sidebar-section-label {
+            font-size: .68rem;
+            font-weight: 600;
+            color: #475569;
+            text-transform: uppercase;
+            letter-spacing: .08em;
+            padding: .6rem .5rem .3rem;
+            white-space: nowrap;
+            transition: opacity .25s ease;
+        }
+
+        /* Nav links */
+        .nav-link {
+            color: #94a3b8;
+            padding: .55rem .75rem;
+            border-radius: 9px;
+            display: flex;
+            align-items: center;
+            gap: .75rem;
+            text-decoration: none;
+            font-weight: 500;
+            font-size: .875rem;
+            margin-bottom: 2px;
+            transition: background .15s ease, color .15s ease, transform .2s ease;
+            white-space: nowrap;
+            position: relative;
+        }
+
+        .nav-link i {
+            font-size: 1.05rem;
+            width: 20px;
+            text-align: center;
+            flex-shrink: 0;
+        }
+
+        .nav-link-text {
+            transition: opacity .25s ease;
+        }
+
+        .nav-link:hover {
+            background: rgba(255, 255, 255, .08);
+            color: #e2e8f0;
+            transform: translateX(3px);
+        }
+
+        .nav-link.active {
+            background: var(--sidebar-accent);
+            color: #60a5fa;
+        }
+
+        /* left accent bar on active */
+        .nav-link.active::before {
+            content: '';
+            position: absolute;
+            left: -12px;
+            top: 6px;
+            bottom: 6px;
+            width: 3px;
+            border-radius: 0 3px 3px 0;
+            background: #3b82f6;
+        }
+
+        .sidebar.collapsed .nav-link.active::before {
+            left: -8px;
+        }
+
+        /* Sidebar footer (logout) */
+        .sidebar-footer {
+            margin-top: auto;
+            padding-top: .75rem;
+            border-top: 1px solid rgba(255, 255, 255, .07);
+            flex-shrink: 0;
+        }
+
+        .logout-btn {
+            width: 100%;
+            background: transparent;
+            border: 1px solid rgba(239, 68, 68, .25);
+            color: #f87171;
+            border-radius: 9px;
+            padding: .55rem .75rem;
+            font-family: 'Outfit', sans-serif;
+            font-size: .875rem;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: .75rem;
+            cursor: pointer;
+            transition: background .18s, transform .2s;
+            white-space: nowrap;
+        }
+
+        .logout-btn:hover {
+            background: rgba(239, 68, 68, .1);
+            transform: translateX(2px);
+        }
+
+        .logout-btn i {
+            font-size: 1rem;
+            flex-shrink: 0;
+        }
+
+        /* Sidebar overlay (mobile) */
+        .sidebar-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, .45);
+            z-index: 199;
+            opacity: 0;
+            transition: opacity .3s ease;
+        }
+
+        .sidebar-overlay.show {
+            display: block;
+            opacity: 1;
+        }
+
+        /* Mobile sidebar slide */
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+                width: var(--sidebar-width) !important;
+            }
+
+            .sidebar.mobile-open {
+                transform: translateX(0);
+            }
+
+            .main-content {
+                margin-left: 0 !important;
+            }
+        }
+
+        /* ===════════════════════════════════════════
+           TOPBAR / NAVBAR
+        ════════════════════════════════════════════ */
+        .main-content {
+            margin-left: var(--sidebar-width);
+            transition: margin-left .3s ease;
+        }
+
+        .main-content.expanded {
+            margin-left: var(--sidebar-collapsed-width);
+        }
+
+        .dashboard-nav {
+            background: var(--bg-card);
+            border-bottom: 1px solid var(--border);
+            height: var(--topbar-height);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 1.5rem;
+            position: sticky;
+            top: 0;
+            z-index: 90;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .nav-left {
+            display: flex;
+            align-items: center;
+            gap: .75rem;
+        }
+
+        .nav-right {
+            display: flex;
+            align-items: center;
+            gap: .75rem;
+        }
+
+        /* Hamburger button */
+        .hamburger-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: .4rem;
+            border-radius: 8px;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+            transition: background .15s, color .15s;
+        }
+
+        .hamburger-btn:hover {
+            background: #f1f5f9;
+            color: var(--text-heading);
+        }
+
+        /* Current page breadcrumb */
+        .nav-page-title {
+            font-size: .88rem;
+            font-weight: 600;
+            color: var(--text-heading);
+        }
+
+        /* ── Notification Bell ── */
+        .notif-wrapper {
+            position: relative;
+        }
+
+        .notif-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            width: 36px;
+            height: 36px;
+            border-radius: 9px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.15rem;
+            color: var(--text-muted);
+            transition: background .15s, color .15s;
+            position: relative;
+        }
+
+        .notif-btn:hover {
+            background: #f1f5f9;
+            color: var(--text-heading);
+        }
+
+        .notif-badge {
+            position: absolute;
+            top: 4px;
+            right: 4px;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: #ef4444;
+            color: white;
+            font-size: .6rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid white;
+            animation: pulse-badge 1.8s infinite;
+        }
+
+        @keyframes pulse-badge {
+
+            0%,
+            100% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.2);
+            }
+        }
+
+        .notif-dropdown {
+            position: absolute;
+            right: 0;
+            top: calc(100% + 10px);
+            width: 340px;
+            background: white;
+            border-radius: 14px;
+            border: 1px solid var(--border);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, .12);
+            z-index: 500;
+            display: none;
+            overflow: hidden;
+            animation: dropIn .2s ease-out;
+        }
+
+        .notif-dropdown.open {
+            display: block;
+        }
+
+        @keyframes dropIn {
+            from {
+                opacity: 0;
+                transform: translateY(-6px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .notif-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: .85rem 1rem .7rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .notif-header h6 {
+            font-size: .88rem;
+            font-weight: 700;
+            margin: 0;
+        }
+
+        .mark-all-read {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: .75rem;
+            color: var(--primary);
+            font-family: 'Outfit', sans-serif;
+            font-weight: 600;
+        }
+
+        .notif-list {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .notif-item {
+            display: flex;
+            gap: .75rem;
+            align-items: flex-start;
+            padding: .75rem 1rem;
+            border-bottom: 1px solid #f8fafc;
+            transition: background .15s;
+            cursor: pointer;
+        }
+
+        .notif-item:hover {
+            background: #f8fafc;
+        }
+
+        .notif-item.unread {
+            background: #eff6ff;
+        }
+
+        .notif-item.unread:hover {
+            background: #dbeafe;
+        }
+
+        .notif-icon {
+            width: 34px;
+            height: 34px;
+            border-radius: 8px;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: .9rem;
+        }
+
+        .notif-body {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .notif-text {
+            font-size: .8rem;
+            color: var(--text-heading);
+            line-height: 1.35;
+        }
+
+        .notif-time {
+            font-size: .7rem;
+            color: var(--text-muted);
+            margin-top: 2px;
+        }
+
+        .notif-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: #3b82f6;
+            margin-top: 6px;
+            flex-shrink: 0;
+        }
+
+        .notif-footer {
+            text-align: center;
+            padding: .6rem;
+            font-size: .78rem;
+            color: var(--primary);
+            font-weight: 600;
+            cursor: pointer;
+            border-top: 1px solid var(--border);
+        }
+
+        .notif-footer:hover {
+            background: #f8fafc;
+        }
+
+        /* User avatar chip */
+        .user-chip {
+            display: flex;
+            align-items: center;
+            gap: .5rem;
+            font-size: .82rem;
+            font-weight: 600;
+            color: var(--text-heading);
+        }
+
+        .user-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: .85rem;
+        }
+
+        /* ===════════════════════════════════════════
+           CONTENT AREA
+        ════════════════════════════════════════════ */
+        .content-area {
+            padding: 1.5rem 2rem;
+        }
+
+        .page-header {
+            margin-bottom: 1.25rem;
+        }
+
+        .page-header h2 {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--text-heading);
+        }
+
+        .page-header p {
+            font-size: .85rem;
+            color: var(--text-muted);
+            margin-top: 2px;
+        }
+
+        /* ===════════════════════════════════════════
+           STAT CARDS
+        ════════════════════════════════════════════ */
+        .stat-card {
+            background: var(--bg-card);
+            padding: 1.1rem 1.25rem;
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow-sm);
+            transition: transform .18s ease, box-shadow .18s ease;
+            height: auto;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, transparent 60%, rgba(37, 99, 235, .04));
+            pointer-events: none;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-hover);
+        }
+
+        .stat-card-inner {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .stat-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 11px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            flex-shrink: 0;
+        }
+
+        .icon-rooms {
+            background: #eff6ff;
+            color: #3b82f6;
+        }
+
+        .icon-energy {
+            background: #f0fdf4;
+            color: #22c55e;
+        }
+
+        .icon-pending {
+            background: #fffbeb;
+            color: #f59e0b;
+        }
+
+        .icon-residents {
+            background: #fdf2f8;
+            color: #db2777;
+        }
+
+        .icon-resolved {
+            background: #f0fdf4;
+            color: #16a34a;
+        }
+
+        .icon-bills {
+            background: #ede9fe;
+            color: #7c3aed;
+        }
+
+        .icon-paid {
+            background: #dcfce7;
+            color: #16a34a;
+        }
+
+        .icon-unpaid {
+            background: #fee2e2;
+            color: #ef4444;
+        }
+
+        .stat-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .stat-value {
+            font-size: 1.55rem;
+            font-weight: 700;
+            line-height: 1.1;
+            color: var(--text-heading);
+        }
+
+        .stat-label {
+            font-size: .78rem;
+            font-weight: 500;
+            color: var(--text-muted);
+            margin-top: 2px;
+            white-space: nowrap;
+        }
+
+        /* ===════════════════════════════════════════
+           SKELETON LOADERS
+        ════════════════════════════════════════════ */
+        .skeleton {
+            background: linear-gradient(90deg, #e2e8f0 25%, #f1f5f9 50%, #e2e8f0 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite;
+            border-radius: 8px;
+        }
+
+        @keyframes shimmer {
+            0% {
+                background-position: 200% 0;
+            }
+
+            100% {
+                background-position: -200% 0;
+            }
+        }
+
+        .skeleton-stat {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 1.1rem 1.25rem;
+        }
+
+        .skeleton-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 11px;
+        }
+
+        .skeleton-line {
+            height: 12px;
+            margin-bottom: 6px;
+        }
+
+        .skeleton-value {
+            height: 24px;
+            width: 60px;
+            margin-bottom: 6px;
+        }
+
+        /* ===════════════════════════════════════════
+           SECTION CARDS
+        ════════════════════════════════════════════ */
+        .section-card {
+            background: var(--bg-card);
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow-sm);
+            padding: 1.25rem 1.4rem;
+            height: 100%;
+            transition: box-shadow .2s ease;
+        }
+
+        .section-card:hover {
+            box-shadow: var(--shadow);
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+        }
+
+        .section-title {
+            font-size: .95rem;
+            font-weight: 600;
+            color: var(--text-heading);
+            display: flex;
+            align-items: center;
+            gap: .5rem;
+            margin: 0;
+        }
+
+        .section-title i {
+            font-size: 1rem;
+        }
+
+        /* ===════════════════════════════════════════
+           SMART ALERTS PANEL
+        ════════════════════════════════════════════ */
+        .alert-item {
+            display: flex;
+            align-items: flex-start;
+            gap: .75rem;
+            padding: .7rem .9rem;
+            border-radius: 10px;
+            margin-bottom: 8px;
+            border-left: 3px solid transparent;
+            font-size: .82rem;
+        }
+
+        .alert-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .alert-critical {
+            background: #fff1f2;
+            border-color: #ef4444;
+        }
+
+        .alert-warning {
+            background: #fffbeb;
+            border-color: #f59e0b;
+        }
+
+        .alert-info {
+            background: #eff6ff;
+            border-color: #3b82f6;
+        }
+
+        .alert-ok {
+            background: #f0fdf4;
+            border-color: #22c55e;
+        }
+
+        .alert-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            flex-shrink: 0;
+            margin-top: 3px;
+        }
+
+        .alert-dot-red {
+            background: #ef4444;
+            box-shadow: 0 0 0 3px rgba(239, 68, 68, .2);
+        }
+
+        .alert-dot-yellow {
+            background: #f59e0b;
+            box-shadow: 0 0 0 3px rgba(245, 158, 11, .2);
+        }
+
+        .alert-dot-blue {
+            background: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, .2);
+        }
+
+        .alert-dot-green {
+            background: #22c55e;
+            box-shadow: 0 0 0 3px rgba(34, 197, 94, .2);
+        }
+
+        .alert-msg {
+            font-weight: 500;
+            color: var(--text-heading);
+        }
+
+        .alert-sub {
+            font-size: .72rem;
+            color: var(--text-muted);
+            margin-top: 1px;
+        }
+
+        /* ===════════════════════════════════════════
+           CHART CONTAINERS
+        ════════════════════════════════════════════ */
+        .chart-container {
+            width: 100%;
+            height: 220px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            margin-top: .5rem;
+        }
+
+        .chart-container canvas {
+            max-height: 220px !important;
+        }
+
+        /* ===════════════════════════════════════════
+           ANALYTICS GRID
+        ════════════════════════════════════════════ */
+        .analytics-grid-3 {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+
+        @media (max-width: 1100px) {
+            .analytics-grid-3 {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        @media (max-width: 700px) {
+            .analytics-grid-3 {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .analytics-grid-4 {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+
+        @media (max-width: 1400px) {
+            .analytics-grid-4 {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 900px) {
+            .analytics-grid-4 {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 600px) {
+            .analytics-grid-4 {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .analytics-grid-5 {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+
+        @media (max-width: 1400px) {
+            .analytics-grid-5 {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        @media (max-width: 900px) {
+            .analytics-grid-5 {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 600px) {
+            .analytics-grid-5 {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* ===════════════════════════════════════════
+           KPI BLOCKS
+        ════════════════════════════════════════════ */
+        .kpi-block {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: #f8fafc;
+            border-radius: 10px;
+            padding: .75rem 1rem;
+            margin-bottom: 8px;
+            border: 1px solid var(--border);
+        }
+
+        .kpi-block:last-child {
+            margin-bottom: 0;
+        }
+
+        .kpi-label {
+            font-size: .78rem;
+            font-weight: 500;
+            color: var(--text-muted);
+        }
+
+        .kpi-value {
+            font-size: 1.3rem;
+            font-weight: 700;
+        }
+
+        /* ===════════════════════════════════════════
+           ACTIVITY FEED
+        ════════════════════════════════════════════ */
+        .activity-feed {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .activity-item {
+            display: flex;
+            gap: .75rem;
+            align-items: flex-start;
+            padding: .6rem 0;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .activity-item:last-child {
+            border-bottom: none;
+        }
+
+        .activity-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            flex-shrink: 0;
+            margin-top: 5px;
+            background: var(--primary);
+        }
+
+        .activity-text {
+            font-size: .82rem;
+            color: var(--text-heading);
+            line-height: 1.3;
+        }
+
+        .activity-time {
+            font-size: .73rem;
+            color: var(--text-muted);
+            margin-top: 2px;
+        }
+
+        /* ===════════════════════════════════════════
+           TABLES
+        ════════════════════════════════════════════ */
+        .table {
+            font-size: .85rem;
+        }
+
+        .table th {
+            font-weight: 600;
+            font-size: .75rem;
+            letter-spacing: .04em;
+            color: var(--text-muted);
+            text-transform: uppercase;
+        }
+
+        /* ===════════════════════════════════════════
+           BUTTONS
+        ════════════════════════════════════════════ */
+        .btn {
+            border-radius: var(--radius) !important;
+            font-weight: 500;
+            font-family: 'Outfit', sans-serif;
+            transition: all .18s ease;
+        }
+
+        .btn-primary {
+            background: var(--primary) !important;
+            border-color: var(--primary) !important;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark) !important;
+            border-color: var(--primary-dark) !important;
+            transform: translateY(-1px);
+        }
+
+        /* ===════════════════════════════════════════
+           FORMS
+        ════════════════════════════════════════════ */
+        .form-select {
+            font-family: 'Outfit', sans-serif;
+            border-radius: var(--radius);
+            border: 1.5px solid var(--border);
+            padding: .6rem .9rem;
+            font-size: .9rem;
+        }
+
+        .form-select:focus,
+        .form-control:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, .1);
+        }
+
+        /* ===════════════════════════════════════════
+           SCROLLBAR
+        ════════════════════════════════════════════ */
+        ::-webkit-scrollbar {
+            width: 5px;
+            height: 5px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 10px;
+        }
+
+        /* ===════════════════════════════════════════
+           RESPONSIVE LAYOUT
+        ════════════════════════════════════════════ */
+        /* ===════════ DARK MODE TOGGLE BUTTON ════════════ */
+        .dark-toggle {
+            background: none;
+            border: none;
+            cursor: pointer;
+            width: 36px;
+            height: 36px;
+            border-radius: 9px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+            color: var(--text-muted);
+            transition: background .15s, color .15s;
+        }
+
+        .dark-toggle:hover {
+            background: #f1f5f9;
+            color: var(--text-heading);
+        }
+
+        [data-theme="dark"] .dark-toggle:hover {
+            background: #334155;
+        }
+
+        /* ===════════ EXPORT BUTTONS ════════════════════ */
+        .export-btn-group {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-bottom: 4px;
+        }
+
+        .export-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: .45rem .9rem;
+            border-radius: 9px;
+            font-size: .8rem;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            transition: all .18s;
+            font-family: 'Outfit', sans-serif;
+        }
+
+        .export-btn-pdf {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+
+        .export-btn-pdf:hover {
+            background: #fca5a5;
+        }
+
+        .export-btn-xls {
+            background: #dcfce7;
+            color: #16a34a;
+        }
+
+        .export-btn-xls:hover {
+            background: #86efac;
+        }
+
+        .export-btn-blue {
+            background: #dbeafe;
+            color: #2563eb;
+        }
+
+        .export-btn-blue:hover {
+            background: #93c5fd;
+        }
+
+        /* ===════════ PREDICTIVE MAINTENANCE ════════════ */
+        .predict-item {
+            display: flex;
+            align-items: flex-start;
+            gap: .75rem;
+            padding: .75rem .9rem;
+            border-radius: 10px;
+            background: #fffbeb;
+            border: 1px solid #fde68a;
+            margin-bottom: 8px;
+            font-size: .82rem;
+        }
+
+        .predict-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .predict-icon {
+            font-size: 1.2rem;
+            flex-shrink: 0;
+        }
+
+        .predict-loc {
+            font-weight: 600;
+            color: var(--text-heading);
+        }
+
+        .predict-sub {
+            font-size: .72rem;
+            color: var(--text-muted);
+            margin-top: 1px;
+        }
+
+        .predict-badge {
+            margin-left: auto;
+            flex-shrink: 0;
+            padding: 2px 8px;
+            background: #fef3c7;
+            color: #d97706;
+            border-radius: 20px;
+            font-size: .7rem;
+            font-weight: 700;
+        }
+
+        /* ===════════ ENERGY CHARTS GRID ════════════════ */
+        .energy-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        @media(max-width:900px) {
+            .energy-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* ===════════ ACTIVITY LOG ══════════════════════ */
+        .log-item {
+            display: flex;
+            gap: .6rem;
+            align-items: flex-start;
+            padding: .55rem 0;
+            border-bottom: 1px solid var(--border);
+            font-size: .81rem;
+        }
+
+        .log-item:last-child {
+            border-bottom: none;
+        }
+
+        .log-badge {
+            font-size: .68rem;
+            font-weight: 700;
+            padding: 1px 7px;
+            border-radius: 20px;
+            white-space: nowrap;
+            flex-shrink: 0;
+            margin-top: 1px;
+        }
+
+        .log-badge-issue {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+
+        .log-badge-assign {
+            background: #dbeafe;
+            color: #2563eb;
+        }
+
+        .log-badge-status {
+            background: #dcfce7;
+            color: #16a34a;
+        }
+
+        .log-badge-bill {
+            background: #ede9fe;
+            color: #7c3aed;
+        }
+
+        .log-badge-system {
+            background: #f1f5f9;
+            color: #64748b;
+        }
+
+        .log-text {
+            color: var(--text-heading);
+            line-height: 1.3;
+            flex: 1;
+        }
+
+        .log-time {
+            font-size: .7rem;
+            color: var(--text-muted);
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
+        /* ===════════ NOTIF CATEGORY TABS ═══════════════ */
+        .notif-tabs {
+            display: flex;
+            gap: 4px;
+            padding: .5rem .75rem 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .notif-tab {
+            padding: .3rem .65rem;
+            font-size: .75rem;
+            font-weight: 600;
+            border: none;
+            background: none;
+            cursor: pointer;
+            border-radius: 6px;
+            color: var(--text-muted);
+            font-family: 'Outfit', sans-serif;
+            transition: all .15s;
+        }
+
+        .notif-tab.active {
+            background: var(--primary);
+            color: white;
+        }
+
+        .notif-tab:hover:not(.active) {
+            background: #f1f5f9;
+        }
+
+        @media (max-width: 768px) {
+            .content-area {
+                padding: 1rem;
+            }
+
+            .user-chip span {
+                display: none;
+            }
+        }
+
+        @keyframes shake {
+
+            0%,
+            100% {
+                transform: translateX(0);
+            }
+
+            20%,
+            60% {
+                transform: translateX(-6px);
+            }
+
+            40%,
+            80% {
+                transform: translateX(6px);
+            }
+        }
+
+        .shake-animation {
+            animation: shake .4s ease;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        #adminDashboard {
+            animation: fadeInUp .35s ease-out;
+        }
+
+        .nav-divider {
+            width: 1px;
+            height: 22px;
+            background: var(--border);
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- ═══════════════════════════════════════════════════
+     MAIN APP SHELL
+════════════════════════════════════════════════════ -->
+    <div id="mainApp" style="display:none;">
+
+        <!-- ── Sidebar overlay (mobile) ── -->
+        <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeMobileSidebar()"></div>
+
+        <!-- ════════════ SIDEBAR ════════════ -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-inner">
+
+                <!-- Brand -->
+                <div class="sidebar-brand">
+                    <div class="sidebar-brand-icon"><i class="bi bi-building"></i></div>
+                    <span class="sidebar-brand-name">SBMS Pro</span>
+                </div>
+
+                <!-- Section label -->
+                <div class="sidebar-section-label">Navigation</div>
+
+                <!-- Nav links -->
+                <nav style="flex:1;">
+                    <a href="#" id="navOverview" class="nav-link active admin-only"
+                        onclick="handleNavClick(event,'navOverview'); switchSection('dashboard');">
+                        <i class="bi bi-grid-1x2"></i>
+                        <span class="nav-link-text">Overview</span>
+                    </a>
+                    <a href="#roomSection" id="navRooms" class="nav-link admin-only"
+                        onclick="handleNavClick(event,'navRooms');">
+                        <i class="bi bi-door-open"></i>
+                        <span class="nav-link-text">Rooms</span>
+                    </a>
+                    <a href="#energySection" id="navEnergy" class="nav-link admin-only"
+                        onclick="handleNavClick(event,'navEnergy');">
+                        <i class="bi bi-lightning-charge"></i>
+                        <span class="nav-link-text">Energy</span>
+                    </a>
+                    <a href="#maintenanceSection" id="navMaintenance" class="nav-link"
+                        onclick="handleNavClick(event,'navMaintenance');">
+                        <i class="bi bi-tools"></i>
+                        <span class="nav-link-text">Maintenance</span>
+                    </a>
+                </nav>
+
+                <!-- Logout -->
+                <div class="sidebar-footer">
+                    <button class="logout-btn" onclick="logout()">
+                        <i class="bi bi-box-arrow-right"></i>
+                        <span class="logout-btn-text">Logout</span>
+                    </button>
+                </div>
+
+            </div>
+        </aside>
+
+        <!-- ════════════ MAIN CONTENT ════════════ -->
+        <div class="main-content" id="mainContent">
+
+            <!-- ── Topbar ── -->
+            <header class="dashboard-nav">
+                <div class="nav-left">
+                    <!-- Hamburger -->
+                    <button class="hamburger-btn" id="hamburgerBtn" onclick="toggleSidebar()" title="Toggle Sidebar">
+                        <i class="bi bi-list" id="hamburgerIcon"></i>
+                    </button>
+                    <span class="nav-page-title" id="navPageTitle">System Overview</span>
+                </div>
+
+                <div class="nav-right">
+                    <!-- Dark Mode Toggle -->
+                    <button class="dark-toggle" id="darkToggleBtn" onclick="toggleDarkMode()" title="Toggle Dark Mode">
+                        <i class="bi bi-moon-fill" id="darkToggleIcon"></i>
+                    </button>
+
+                    <div class="nav-divider"></div>
+
+                    <!-- Notification Bell -->
+                    <div class="notif-wrapper" style="position:relative;">
+                        <button class="notif-btn" id="notifBtn" onclick="toggleNotifDropdown()" title="Notifications">
+                            <i class="bi bi-bell"></i>
+                            <span class="notif-badge" id="notifBadge">0</span>
+                        </button>
+                        <!-- Notification Dropdown -->
+                        <div class="notif-dropdown" id="notifDropdown">
+                            <div class="notif-header">
+                                <h6>Notifications</h6>
+                                <div style="display:flex;gap:6px;">
+                                    <button class="mark-all-read" onclick="markAllRead()" style="font-size:.7rem;">Mark
+                                        all read</button>
+                                    <button class="mark-all-read" onclick="clearAllNotifs()"
+                                        style="font-size:.7rem;color:#ef4444;">Clear</button>
+                                </div>
+                            </div>
+                            <!-- Category tabs -->
+                            <div class="notif-tabs">
+                                <button class="notif-tab active" id="notifTabAll"
+                                    onclick="filterNotifTab('all')">All</button>
+                                <button class="notif-tab" id="notifTabIssue"
+                                    onclick="filterNotifTab('issue')">Issues</button>
+                                <button class="notif-tab" id="notifTabBill"
+                                    onclick="filterNotifTab('bill')">Billing</button>
+                                <button class="notif-tab" id="notifTabSystem"
+                                    onclick="filterNotifTab('default')">System</button>
+                            </div>
+                            <div class="notif-list" id="notifList">
+                                <div style="text-align:center;padding:2rem;color:var(--text-muted);font-size:.82rem;">No
+                                    notifications yet</div>
+                            </div>
+                            <div class="notif-footer" onclick="toggleNotifDropdown()">View all</div>
+                        </div>
+                    </div>
+
+                    <div class="nav-divider"></div>
+
+                    <!-- User chip -->
+                    <div class="user-chip">
+                        <div class="user-avatar"><i class="bi bi-person"></i></div>
+                        <span id="userRole">Administrator</span>
+                    </div>
+
+                    <div class="nav-divider"></div>
+
+                    <!-- Logout (topbar) -->
+                    <button class="btn btn-sm btn-outline-danger d-flex align-items-center gap-2 py-1 px-3"
+                        onclick="logout()" style="font-size:.82rem;">
+                        <i class="bi bi-box-arrow-right"></i> Logout
+                    </button>
+                </div>
+            </header>
+
+            <!-- ══════ CONTENT ══════ -->
+            <main class="content-area">
+
+                <!-- ════════════ ADMIN DASHBOARD ════════════ -->
+                <div id="adminDashboard" style="display:none;">
+
+                    <div class="page-header">
+                        <h2>System Overview</h2>
+                        <p>Real-time analytics and management controls</p>
+                    </div>
+
+                    <!-- ── Smart Alerts Banner ── -->
+                    <div id="smartAlerts" style="margin-bottom:16px;"></div>
+
+                    <!-- ── Dashboard Statistics Cards ── -->
+                    <div class="analytics-grid-4" id="dashboardStatsCards">
+                        <div class="skeleton-stat">
+                            <div class="d-flex gap-2 align-items-center">
+                                <div class="skeleton skeleton-icon"></div>
+                                <div style="flex:1">
+                                    <div class="skeleton skeleton-value mb-2"></div>
+                                    <div class="skeleton skeleton-line" style="width:70%"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="skeleton-stat">
+                            <div class="d-flex gap-2 align-items-center">
+                                <div class="skeleton skeleton-icon"></div>
+                                <div style="flex:1">
+                                    <div class="skeleton skeleton-value mb-2"></div>
+                                    <div class="skeleton skeleton-line" style="width:70%"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="skeleton-stat">
+                            <div class="d-flex gap-2 align-items-center">
+                                <div class="skeleton skeleton-icon"></div>
+                                <div style="flex:1">
+                                    <div class="skeleton skeleton-value mb-2"></div>
+                                    <div class="skeleton skeleton-line" style="width:70%"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="skeleton-stat">
+                            <div class="d-flex gap-2 align-items-center">
+                                <div class="skeleton skeleton-icon"></div>
+                                <div style="flex:1">
+                                    <div class="skeleton skeleton-value mb-2"></div>
+                                    <div class="skeleton skeleton-line" style="width:70%"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ── Charts Row 1 ── -->
+                    <div class="analytics-grid-3 mb-0">
+                        <div class="section-card">
+                            <div class="section-header">
+                                <h3 class="section-title"><i class="bi bi-pie-chart-fill text-primary"></i> Issue Status
+                                </h3>
+                            </div>
+                            <div class="chart-container"><canvas id="issueStatusChart"></canvas></div>
+                        </div>
+                        <div class="section-card">
+                            <div class="section-header">
+                                <h3 class="section-title"><i class="bi bi-bar-chart-fill text-success"></i> By Location
+                                </h3>
+                            </div>
+                            <div class="chart-container"><canvas id="issueLocationChart"></canvas></div>
+                        </div>
+                        <div class="section-card">
+                            <div class="section-header">
+                                <h3 class="section-title"><i class="bi bi-graph-up text-warning"></i> Over Time</h3>
+                            </div>
+                            <div class="chart-container"><canvas id="issueTimeChart"></canvas></div>
+                        </div>
+                    </div>
+
+                    <!-- ── Charts Row 2 ── -->
+                    <div class="analytics-grid-3 mt-3">
+                        <div class="section-card">
+                            <div class="section-header">
+                                <h3 class="section-title"><i class="bi bi-cash-stack text-success"></i> Bill Payments
+                                </h3>
+                            </div>
+                            <div class="chart-container"><canvas id="billOverviewChart"></canvas></div>
+                        </div>
+
+                        <div class="section-card">
+                            <div class="section-header">
+                                <h3 class="section-title"><i class="bi bi-tools text-primary"></i> Maintenance
+                                    Performance</h3>
+                            </div>
+                            <div class="kpi-block"><span class="kpi-label">Total Assigned</span><span
+                                    class="kpi-value text-primary" id="maintAssigned">—</span></div>
+                            <div class="kpi-block"><span class="kpi-label">Issues Completed</span><span
+                                    class="kpi-value text-success" id="maintCompleted">—</span></div>
+                            <div class="kpi-block"><span class="kpi-label">Avg Resolution Time</span><span
+                                    class="kpi-value text-warning" id="maintAvgResTime">— hrs</span></div>
+                            <div id="technicianPerfList" style="margin-top:8px;"></div>
+                        </div>
+
+                        <div class="section-card" style="overflow:hidden;">
+                            <div class="section-header">
+                                <h3 class="section-title"><i class="bi bi-activity text-danger"></i> Recent Activity
+                                </h3>
+                            </div>
+                            <ul class="activity-feed" id="recentActivityList" style="max-height:220px;overflow-y:auto;">
+                                <li class="activity-item">
+                                    <div class="activity-dot" style="background:#94a3b8;"></div>
+                                    <div>
+                                        <div class="activity-text text-muted">Loading activities...</div>
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- ── Energy Analytics ── -->
+                    <div class="mt-3">
+                        <div class="section-card">
+                            <div class="section-header">
+                                <h3 class="section-title"><i class="bi bi-lightning-charge-fill text-warning"></i>
+                                    Energy Analytics</h3>
+                                <span style="font-size:.78rem;color:var(--text-muted);">Last 7 days &amp; floor
+                                    breakdown</span>
+                            </div>
+                            <div class="energy-grid">
+                                <div>
+                                    <div
+                                        style="font-size:.78rem;font-weight:600;color:var(--text-muted);margin-bottom:6px;">
+                                        Daily Consumption (kWh)</div>
+                                    <div class="chart-container" style="height:180px;"><canvas
+                                            id="energyDailyChart"></canvas></div>
+                                </div>
+                                <div>
+                                    <div
+                                        style="font-size:.78rem;font-weight:600;color:var(--text-muted);margin-bottom:6px;">
+                                        Consumption by Floor</div>
+                                    <div class="chart-container" style="height:180px;"><canvas
+                                            id="energyFloorChart"></canvas></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ── Predictive Maintenance + Activity Log ── -->
+                    <div class="row g-3 mt-1">
+                        <div class="col-lg-6">
+                            <div class="section-card">
+                                <div class="section-header">
+                                    <h3 class="section-title"><i class="bi bi-robot text-warning"></i> Predictive
+                                        Maintenance</h3>
+                                    <span style="font-size:.72rem;color:var(--text-muted);">AI-powered maintenance
+                                        alerts</span>
+                                </div>
+                                <div id="predictiveList">
+                                    <div class="text-center py-3 text-muted" style="font-size:.82rem;"><i
+                                            class="bi bi-check-circle text-success"></i> No recurring failures detected
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-6">
+                            <div class="section-card">
+                                <div class="section-header">
+                                    <h3 class="section-title"><i class="bi bi-journal-text text-primary"></i> System
+                                        Activity Log</h3>
+                                    <span style="font-size:.72rem;color:var(--text-muted);">Latest 10 events</span>
+                                </div>
+                                <div id="activityLogList">
+                                    <div class="text-muted" style="font-size:.82rem;padding:.5rem 0;">Loading logs...
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ── ADVANCED REPORTING CENTER ── -->
+                    <div class="mt-4 mb-2" id="reportingSection">
+                        <div class="section-card">
+                            <div class="section-header pb-2 border-bottom mb-3"
+                                style="display:flex;justify-content:space-between;align-items:center;">
+                                <div>
+                                    <h3 class="section-title"><i class="bi bi-file-earmark-bar-graph text-primary"></i>
+                                        Report Center</h3>
+                                    <span style="font-size:.75rem;color:var(--text-muted);">History, generation, and
+                                        scheduling</span>
+                                </div>
+                                <button class="btn btn-sm btn-primary" onclick="openReportModal()">
+                                    <i class="bi bi-plus-lg"></i> Generate New Report
+                                </button>
+                            </div>
+
+                            <div class="row g-4">
+                                <!-- Report History Table -->
+                                <div class="col-lg-8">
+                                    <h6
+                                        style="font-size:.85rem;font-weight:600;margin-bottom:.75rem;color:var(--text-heading);">
+                                        Report History</h6>
+                                    <div class="table-responsive" style="max-height:260px;overflow-y:auto;">
+                                        <table class="table table-hover align-middle">
+                                            <thead>
+                                                <tr class="text-muted"
+                                                    style="font-size:.75rem;text-transform:uppercase;">
+                                                    <th>Type</th>
+                                                    <th>Format</th>
+                                                    <th>Generated By</th>
+                                                    <th>Date</th>
+                                                    <th class="text-end">Action</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="reportHistoryTable">
+                                                <tr>
+                                                    <td colspan="5" class="text-center text-muted"
+                                                        style="font-size:.8rem;">Loading report history...</td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+
+                                <!-- Scheduled Reports -->
+                                <div class="col-lg-4">
+                                    <h6
+                                        style="font-size:.85rem;font-weight:600;margin-bottom:.75rem;color:var(--text-heading);">
+                                        Scheduled Auto Reports</h6>
+                                    <div class="p-3 bg-light rounded"
+                                        style="border:1px solid var(--border);min-height:260px;font-size:.82rem;">
+                                        <ul class="list-unstyled mb-0" id="scheduledReportsList">
+                                            <li class="text-muted text-center py-3">Loading schedules...</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ── Management Forms + Table ── -->
+                    <!-- ── Management Forms + Table ── -->
+                    <div class="row g-4 mb-4 mt-1">
+                        <div class="col-xl-5" id="roomSection">
+                            <div class="section-card">
+                                <div class="section-header">
+                                    <h3 class="section-title"><i class="bi bi-building text-primary"></i> Add Building
+                                        Block</h3>
+                                </div>
+                                <form id="adminBlockForm">
+                                    <div class="row g-3">
+                                        <div class="col-12">
+                                            <label class="form-label">Block Name</label>
+                                            <input type="text" id="adminBlockName" class="form-control"
+                                                placeholder="e.g. A Block" required>
+                                        </div>
+                                        <div class="col-6">
+                                            <label class="form-label">Total Floors</label>
+                                            <input type="number" id="adminTotalFloors" class="form-control"
+                                                placeholder="e.g. 3" required min="1">
+                                        </div>
+                                        <div class="col-6">
+                                            <label class="form-label">Rooms / Floor</label>
+                                            <input type="number" id="adminRoomsPerFloor" class="form-control"
+                                                placeholder="e.g. 10" required min="1">
+                                        </div>
+                                        <div class="col-12 pt-2">
+                                            <button type="submit"
+                                                class="btn btn-primary d-flex align-items-center gap-2">
+                                                <i class="bi bi-plus-circle"></i> Create Block
+                                            </button>
+                                        </div>
+                                    </div>
+                                </form>
+                                <hr class="my-3" style="border-color:var(--border);">
+                                <h6
+                                    style="font-size:.85rem;font-weight:600;margin-bottom:.5rem;color:var(--text-heading);">
+                                    Configured Blocks</h6>
+                                <div class="table-responsive" style="max-height:160px;overflow-y:auto;">
+                                    <table class="table table-sm table-hover align-middle mb-0">
+                                        <thead>
+                                            <tr class="text-muted" style="font-size:.72rem;text-transform:uppercase;">
+                                                <th>Block Name</th>
+                                                <th>Floors</th>
+                                                <th>Rooms/Fl</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="buildingBlocksTableBody">
+                                            <tr>
+                                                <td colspan="3" class="text-center text-muted"
+                                                    style="font-size:.8rem;padding:1rem;">Loading blocks...</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-xl-7" id="roomManagementSection">
+                            <div class="section-card">
+                                <div class="section-header">
+                                    <h3 class="section-title"><i class="bi bi-door-open text-primary"></i> Room
+                                        Management</h3>
+                                </div>
+                                <div class="d-flex gap-2 mb-3">
+                                    <select id="filterBlockSelect" class="form-select form-select-sm"
+                                        style="max-width:200px;" onchange="loadAdminRooms()">
+                                        <option value="">All Blocks</option>
+                                        <!-- Blocks loaded dynamically -->
+                                    </select>
+                                    <button class="btn btn-sm btn-light border" onclick="loadAdminRooms()"><i
+                                            class="bi bi-arrow-clockwise"></i> Refresh</button>
+                                </div>
+                                <div class="table-responsive" style="max-height:350px;overflow-y:auto;">
+                                    <table class="table table-sm table-hover align-middle mb-0">
+                                        <thead
+                                            style="position: sticky; top: 0; background: var(--bg-card); z-index: 1;">
+                                            <tr class="text-muted" style="font-size:.72rem;text-transform:uppercase;">
+                                                <th>Room</th>
+                                                <th>Block</th>
+                                                <th>Floor</th>
+                                                <th>Status</th>
+                                                <th class="text-end">Action</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="adminRoomsTableBody">
+                                            <tr>
+                                                <td colspan="5" class="text-center text-muted"
+                                                    style="font-size:.8rem;padding:1rem;">Loading rooms...</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-xl-6" id="energySection">
+                            <div class="section-card">
+                                <div class="section-header">
+                                    <h3 class="section-title"><i class="bi bi-lightning-charge text-success"></i> Energy
+                                        Log</h3>
+                                </div>
+                                <form id="adminEnergyForm">
+                                    <div class="row g-3">
+                                        <div class="col-md-6">
+                                            <label class="form-label">Room ID</label>
+                                            <input type="text" id="adminEnergyRoom" class="form-control"
+                                                placeholder="e.g. A-101" required>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label">Log Date</label>
+                                            <input type="date" id="adminEnergyDate" class="form-control" required>
+                                        </div>
+                                        <div class="col-12">
+                                            <label class="form-label">Consumption (kWh)</label>
+                                            <input type="number" id="adminPower" class="form-control" step="0.1"
+                                                placeholder="0.0" required>
+                                        </div>
+                                        <div class="col-12 pt-3">
+                                            <button type="submit" class="btn btn-primary"
+                                                style="background:#10b981!important;border-color:#10b981!important;">Log
+                                                Usage</button>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+
+                        <div class="col-12" id="maintenanceSection">
+                            <div class="section-card">
+                                <div class="section-header">
+                                    <h3 class="section-title"><i class="bi bi-table text-warning"></i> Recent Requests
+                                    </h3>
+                                    <button class="btn btn-sm btn-light">View All</button>
+                                </div>
+                                <div class="table-responsive">
+                                    <table class="table table-borderless align-middle">
+                                        <thead>
+                                            <tr class="text-muted"
+                                                style="font-size:.85rem;text-transform:uppercase;letter-spacing:1px;">
+                                                <th>Room</th>
+                                                <th>Issue &amp; Description</th>
+                                                <th>Priority</th>
+                                                <th>Status</th>
+                                                <th>Date</th>
+                                                <th>Action</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="adminIssuesTableBody"></tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div><!-- /adminDashboard -->
+
+                <!-- ════════════ MAINTENANCE DASHBOARD ════════════ -->
+                <div id="maintenanceDashboard" style="display:none;">
+                    <div class="mb-4">
+                        <h2 class="fw-bold m-0">Maintenance Portal</h2>
+                        <p class="text-muted">Manage assigned work orders and updates</p>
+                    </div>
+                    <div class="row g-4">
+                        <div class="col-lg-8">
+                            <div class="section-card">
+                                <h3 class="section-title mb-4"><i class="bi bi-clipboard-check text-primary"></i>
+                                    Assigned Work Orders</h3>
+                                <div id="workOrderList">
+                                    <div class="text-center py-5 text-muted">
+                                        <i class="bi bi-inbox d-block mb-3" style="font-size:2.5rem;opacity:.3;"></i>
+                                        Fetching your assigned tasks...
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-4">
+                            <div class="section-card">
+                                <h3 class="section-title mb-4"><i class="bi bi-pencil-square text-success"></i> Quick
+                                    Update</h3>
+                                <form id="maintenanceUpdateForm">
+                                    <div class="mb-3">
+                                        <label class="form-label">Order ID</label>
+                                        <input type="text" id="workOrderId" class="form-control" placeholder="WO-1234"
+                                            required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">New Status</label>
+                                        <select id="workStatus" class="form-select shadow-sm"
+                                            style="border-radius:12px;padding:.75rem;">
+                                            <option value="In Progress">In Progress</option>
+                                            <option value="Completed">Completed</option>
+                                            <option value="Cancelled">Cancelled</option>
+                                        </select>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Update Notes</label>
+                                        <textarea id="workNotes" class="form-control" rows="3"
+                                            placeholder="Describe progress..."></textarea>
+                                    </div>
+                                    <button type="submit" class="btn btn-primary">Sync Update</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div><!-- /maintenanceDashboard -->
+
+                <!-- ════════════ RESIDENT DASHBOARD ════════════ -->
+                <div id="residentDashboard" style="display:none;">
+                    <div class="mb-4">
+                        <h2 class="fw-bold m-0">Resident Portal</h2>
+                        <p class="text-muted">Report issues and track occupancy</p>
+                    </div>
+                    <div class="row g-4">
+                        <div class="col-lg-6">
+                            <div class="section-card">
+                                <h3 class="section-title mb-4"><i class="bi bi-megaphone text-warning"></i> Report an
+                                    Issue</h3>
+                                <form id="residentMaintenanceForm">
+                                    <div class="mb-3">
+                                        <label class="form-label">Issue Title</label>
+                                        <input type="text" id="residentTitle" class="form-control"
+                                            placeholder="Title of the issue" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Location/Room</label>
+                                        <input type="text" id="residentLocation" class="form-control"
+                                            placeholder="e.g. A-305" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Description</label>
+                                        <textarea id="residentDescription" class="form-control" rows="4"
+                                            placeholder="Describe the problem in detail..." required></textarea>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Priority</label>
+                                        <select id="residentPriority" class="form-select shadow-sm"
+                                            style="border-radius:12px;padding:.75rem;">
+                                            <option value="Low">Low</option>
+                                            <option value="Medium" selected>Medium</option>
+                                            <option value="High">High</option>
+                                            <option value="Critical">Critical</option>
+                                        </select>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Image (optional)</label>
+                                        <input type="file" id="residentImage" class="form-control" accept="image/*">
+                                    </div>
+                                    <button type="submit" class="btn btn-primary w-100">Submit Request</button>
+                                </form>
+                            </div>
+                        </div>
+                        <div class="col-lg-6">
+                            <div class="section-card">
+                                <h3 class="section-title mb-4"><i class="bi bi-info-circle text-primary"></i> My
+                                    Reported Issues</h3>
+                                <div class="table-responsive" style="max-height:400px;overflow-y:auto;">
+                                    <table class="table table-hover align-middle">
+                                        <thead>
+                                            <tr class="text-muted small text-uppercase">
+                                                <th>Location</th>
+                                                <th>Issue</th>
+                                                <th>Status</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="residentIssuesTableBody">
+                                            <tr>
+                                                <td colspan="3" class="text-center text-muted">No issues reported yet.
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row g-4 mt-2">
+                        <div class="col-12">
+                            <div class="section-card">
+                                <h3 class="section-title mb-4"><i class="bi bi-receipt text-success"></i> Due Bills</h3>
+                                <div class="table-responsive">
+                                    <table class="table table-hover align-middle">
+                                        <thead>
+                                            <tr class="text-muted small text-uppercase">
+                                                <th>Bill ID</th>
+                                                <th>Amount ($)</th>
+                                                <th>Due Date</th>
+                                                <th>Status</th>
+                                                <th>Action</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="residentBillsTableBody">
+                                            <tr>
+                                                <td colspan="5" class="text-center text-muted">Loading bills...</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div><!-- /residentDashboard -->
+
+            </main>
+        </div><!-- /main-content -->
+
+        <!-- ════════════ GENERATE REPORT MODAL ════════════ -->
+        <div class="modal fade" id="reportModal" tabindex="-1" aria-hidden="true"
+            style="font-family:'Outfit',sans-serif;">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content"
+                    style="border-radius:16px;border:none;box-shadow:0 10px 40px rgba(0,0,0,0.1);">
+                    <div class="modal-header border-bottom-0 pb-0">
+                        <h5 class="modal-title fw-bold"><i class="bi bi-funnel text-primary me-2"></i>Generate Report
+                        </h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body p-4">
+                        <form id="generateReportForm">
+                            <div class="mb-3">
+                                <label class="form-label" style="font-size:.85rem;font-weight:600;">Report Type</label>
+                                <select id="reportTypeSelect" class="form-select" style="border-radius:10px;">
+                                    <option value="Issues">Issue Report</option>
+                                    <option value="Billing">Billing Report</option>
+                                    <option value="Maintenance">Maintenance Report</option>
+                                </select>
+                            </div>
+                            <div class="row g-3 mb-3">
+                                <div class="col-6">
+                                    <label class="form-label" style="font-size:.85rem;font-weight:600;">Format</label>
+                                    <select id="reportFormatSelect" class="form-select" style="border-radius:10px;">
+                                        <option value="PDF">PDF Document</option>
+                                        <option value="Excel">Excel / CSV</option>
+                                    </select>
+                                </div>
+                                <div class="col-6">
+                                    <label class="form-label" style="font-size:.85rem;font-weight:600;">Date
+                                        Range</label>
+                                    <select id="reportDateRange" class="form-select" style="border-radius:10px;">
+                                        <option value="All">All Time</option>
+                                        <option value="Last30">Last 30 Days</option>
+                                        <option value="ThisYear">This Year</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label" style="font-size:.85rem;font-weight:600;">Additional Filters
+                                    (Optional)</label>
+                                <div class="d-flex gap-2 mb-2">
+                                    <select id="reportStatusFilter" class="form-select form-select-sm"
+                                        style="border-radius:6px;font-size:.8rem;">
+                                        <option value="">Any Status</option>
+                                        <option value="Pending">Pending</option>
+                                        <option value="Completed">Completed</option>
+                                    </select>
+                                    <input type="text" id="reportStaffFilter" class="form-control form-control-sm"
+                                        placeholder="Block/Location..." style="border-radius:6px;font-size:.8rem;">
+                                </div>
+                            </div>
+                            <hr class="my-3 mx-n4" style="border-color:var(--border);">
+
+                            <div class="d-flex align-items-center justify-content-between mb-3">
+                                <label class="form-check-label ms-1 fw-bold" style="font-size:.85rem;">Email Delivery
+                                    (Optional)</label>
+                                <div class="form-check form-switch m-0">
+                                    <input class="form-check-input" type="checkbox" id="reportEmailDelivery">
+                                </div>
+                            </div>
+                            <div id="emailDeliverySection" style="display:none;" class="mb-3">
+                                <input type="email" id="reportEmailAddress" class="form-control form-control-sm"
+                                    placeholder="admin@sbms.com" style="border-radius:8px;">
+                                <div class="form-text" style="font-size:.7rem;">Report summary and attachment will be
+                                    emailed.</div>
+                            </div>
+
+                            <hr class="my-3 mx-n4" style="border-color:var(--border);">
+
+                            <div class="mb-3">
+                                <label class="form-label fw-bold" style="font-size:.85rem;">Schedule Option</label>
+                                <select id="reportScheduleOption" class="form-select"
+                                    style="border-radius:10px;background:#f8fafc;">
+                                    <option value="Manual">Generate Manually Right Now</option>
+                                    <option value="Daily">Daily Report</option>
+                                    <option value="Weekly">Weekly Report (Sundays)</option>
+                                    <option value="Monthly">Monthly Report (1st of Month)</option>
+                                </select>
+                            </div>
+
+                            <div class="d-flex gap-2 pt-2">
+                                <button type="button" class="btn btn-outline-secondary w-50" data-bs-dismiss="modal"
+                                    style="border-radius:10px;">Cancel</button>
+                                <button type="button" class="btn btn-primary w-50" id="btnExecuteReport"
+                                    onclick="executeReportGeneration()" style="border-radius:10px;">
+                                    <span id="reportBtnText">Generate Now</span>
+                                    <div class="spinner-border spinner-border-sm ms-2" id="reportLoader"
+                                        style="display:none;" role="status"></div>
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div><!-- /mainApp -->
+
+    <!-- ══════════════════════════════════════
+     LOGIN PAGE
+═══════════════════════════════════════ -->
+    <div id="loginPage" class="auth-container">
+        <div class="auth-card">
+            <div class="auth-logo"><i class="bi bi-building"></i></div>
+            <h1 class="auth-title">Smart Building Automation</h1>
+            <p class="auth-subtitle">Sign in to your account</p>
+            <div id="loginError" class="alert alert-danger mb-4 py-2 small" style="display:none;border-radius:12px;">
+            </div>
+            <form id="loginForm">
+                <div class="mb-4 text-start">
+                    <label class="form-label ms-1">Username</label>
+                    <div class="input-group">
+                        <i class="bi bi-person"></i>
+                        <input type="text" id="username" class="form-control" placeholder="Enter username" required>
+                    </div>
+                </div>
+                <div class="mb-5 text-start">
+                    <label class="form-label ms-1">Password</label>
+                    <div class="input-group">
+                        <i class="bi bi-lock"></i>
+                        <input type="password" id="password" class="form-control" placeholder="••••••••" required>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary w-100 py-2">Sign In</button>
+            </form>
+            <div class="mt-4">
+                <p class="text-muted small">Don't have an account? <a href="#" onclick="showSignup()"
+                        class="text-primary fw-bold">Sign Up</a></p>
+            </div>
+            <p class="mt-4 text-muted small">© 2026 SBMS Management System</p>
+        </div>
+    </div>
+
+    <!-- ══════════════════════════════════════
+     SIGNUP PAGE
+═══════════════════════════════════════ -->
+    <div id="signupPage" class="auth-container" style="display:none;">
+        <div class="auth-card" style="max-width:550px;padding:2.5rem;">
+            <div class="auth-logo" style="width:60px;height:60px;font-size:1.75rem;margin-bottom:1.5rem;">
+                <i class="bi bi-person-plus"></i>
+            </div>
+            <h2 class="auth-title" style="font-size:1.75rem;">Create Account</h2>
+            <p class="auth-subtitle">Join the SBMS Management System</p>
+            <div id="signupError" class="alert alert-danger mb-4 py-2 small" style="display:none;border-radius:12px;">
+            </div>
+            <form id="signupForm">
+                <div class="row g-3 text-start">
+                    <div class="col-12">
+                        <label class="form-label ms-1">Full Name</label>
+                        <div class="input-group"><i class="bi bi-person-vcard"></i><input type="text" id="signupName"
+                                class="form-control" placeholder="John Doe" required></div>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label ms-1">Username</label>
+                        <div class="input-group"><i class="bi bi-at"></i><input type="text" id="signupUsername"
+                                class="form-control" placeholder="username" required></div>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label ms-1">Email</label>
+                        <div class="input-group"><i class="bi bi-envelope"></i><input type="email" id="signupEmail"
+                                class="form-control" placeholder="email@example.com" required></div>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label ms-1">Password</label>
+                        <div class="input-group"><i class="bi bi-lock"></i><input type="password" id="signupPassword"
+                                class="form-control" placeholder="••••••••" required></div>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label ms-1">Confirm</label>
+                        <div class="input-group"><i class="bi bi-lock-fill"></i><input type="password"
+                                id="signupConfirmPassword" class="form-control" placeholder="••••••••" required></div>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label ms-1">Role</label>
+                        <select id="signupRole" class="form-select border-0 shadow-sm"
+                            style="border-radius:12px;padding:.75rem;background-color:var(--bg-body);" required>
+                            <option value="">Select Role</option>
+                            <option value="admin">Admin</option>
+                            <option value="maintenance">Maintenance</option>
+                            <option value="resident">Resident</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label ms-1">Phone</label>
+                        <div class="input-group"><i class="bi bi-telephone"></i><input type="tel" id="signupPhone"
+                                class="form-control" placeholder="123-456-7890" required></div>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary mt-4 w-100 py-2">Create Account</button>
+            </form>
+            <div class="mt-4">
+                <p class="text-muted small">Already have an account? <a href="#" onclick="showLogin()"
+                        class="text-primary fw-bold">Sign In</a></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- jsPDF for PDF export -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+    <!-- SheetJS for Excel export -->
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
+    <script src="js/script.js?v=3.0"></script>
+</body>
+
+</html>
