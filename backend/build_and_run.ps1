@@ -17,7 +17,11 @@ Get-ChildItem -Path "$BACKEND_ROOT\src\main\java\com\sbms\util\*.java", "$BACKEN
 
 javac -cp ".;$TOMCAT_HOME\lib\servlet-api.jar;$LIB_PATH\*" -d "$CLASSES_PATH" "@$BACKEND_ROOT\sources.txt"
 
-if ($LASTEXITCODE -ne 0) { Write-Error "Compilation failed."; exit 1 }
+if ($LASTEXITCODE -ne 0) { 
+    Write-Error "Compilation failed."
+    Remove-Item "$BACKEND_ROOT\sources.txt" -ErrorAction SilentlyContinue
+    exit 1 
+}
 Write-Host "Compilation successful."
 Remove-Item "$BACKEND_ROOT\sources.txt" -ErrorAction SilentlyContinue
 
@@ -37,10 +41,7 @@ Write-Host "--- Step 3: Starting Tomcat on port 8081 ---"
 $env:CATALINA_HOME = $TOMCAT_HOME
 $env:CATALINA_BASE = $TOMCAT_HOME
 
-Start-Process -FilePath "$TOMCAT_HOME\bin\catalina.bat" `
-    -ArgumentList "start" `
-    -WorkingDirectory $TOMCAT_HOME `
-    -NoNewWindow
+Start-Process -FilePath "$TOMCAT_HOME\bin\catalina.bat" -ArgumentList "start" -WorkingDirectory $TOMCAT_HOME -NoNewWindow
 
 Write-Host "--- Done! ---"
 Write-Host "App will be available at: http://localhost:8081/SBMS/"
