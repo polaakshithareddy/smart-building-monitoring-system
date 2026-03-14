@@ -25,13 +25,18 @@ Write-Host "--- Step 2: Compiling Backend ---"
 $CLASSES_PATH = "src\main\webapp\WEB-INF\classes"
 if (-not (Test-Path $CLASSES_PATH)) { New-Item -ItemType Directory -Path $CLASSES_PATH -Force }
 
-javac -cp ".;$TOMCAT_PATH\lib\servlet-api.jar;src/main/webapp/WEB-INF/lib/*" -d "$CLASSES_PATH" src/main/java/com/sbms/util/*.java src/main/java/com/sbms/servlet/*.java
+# Generate sources list
+Get-ChildItem -Path "src/main/java/com/sbms/util/*.java", "src/main/java/com/sbms/servlet/*.java" | Resolve-Path | Out-File -FilePath "sources.txt" -Encoding ascii
+
+javac -cp ".;$TOMCAT_PATH\lib\servlet-api.jar;src/main/webapp/WEB-INF/lib/*" -d "$CLASSES_PATH" "@sources.txt"
 
 if ($LASTEXITCODE -ne 0) {
     Write-Error "Compilation failed. Please check for missing JARs or errors above."
+    Remove-Item "sources.txt" -ErrorAction SilentlyContinue
     exit
 }
 Write-Host "Compilation successful."
+Remove-Item "sources.txt" -ErrorAction SilentlyContinue
 
 Write-Host "--- Step 3: Deploying to Tomcat ---"
 $DEPLOY_PATH = "$TOMCAT_PATH\webapps\SBMS"
