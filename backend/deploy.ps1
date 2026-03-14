@@ -36,7 +36,10 @@ Write-Host "Compilation successful."
 Write-Host "--- Step 3: Deploying to Tomcat ---"
 $DEPLOY_PATH = "$TOMCAT_PATH\webapps\SBMS"
 if (Test-Path $DEPLOY_PATH) { Remove-Item $DEPLOY_PATH -Recurse -Force }
+# Copy backend webapp structure
 Copy-Item "src/main/webapp" -Destination $DEPLOY_PATH -Recurse
+# Sync frontend files from the sibling directory
+Copy-Item "../frontend/*" -Destination $DEPLOY_PATH -Recurse -Force
 
 Write-Host "--- Done! ---"
 Write-Host "1. Run setup.sql in MySQL if you haven't already."
