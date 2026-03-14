@@ -12,13 +12,7 @@ $CLASSES_PATH = "$BACKEND_ROOT\src\main\webapp\WEB-INF\classes"
 Write-Host "--- Step 1: Compiling Backend ---"
 if (-not (Test-Path $CLASSES_PATH)) { New-Item -ItemType Directory -Path $CLASSES_PATH -Force | Out-Null }
 
-$JAVAC_ARGS = @(
-    "-cp", ".;$TOMCAT_HOME\lib\servlet-api.jar;$LIB_PATH\*",
-    "-d", "$CLASSES_PATH",
-    "$BACKEND_ROOT\src\main\java\com\sbms\util\*.java",
-    "$BACKEND_ROOT\src\main\java\com\sbms\servlet\*.java"
-)
-javac @JAVAC_ARGS
+javac -cp ".;$TOMCAT_HOME\lib\servlet-api.jar;$LIB_PATH\*" -d "$CLASSES_PATH" "$BACKEND_ROOT\src\main\java\com\sbms\util\*.java" "$BACKEND_ROOT\src\main\java\com\sbms\servlet\*.java"
 
 if ($LASTEXITCODE -ne 0) { Write-Error "Compilation failed."; exit 1 }
 Write-Host "Compilation successful."

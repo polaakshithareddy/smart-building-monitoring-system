@@ -25,13 +25,7 @@ Write-Host "--- Step 2: Compiling Backend ---"
 $CLASSES_PATH = "src\main\webapp\WEB-INF\classes"
 if (-not (Test-Path $CLASSES_PATH)) { New-Item -ItemType Directory -Path $CLASSES_PATH -Force }
 
-$JAVAC_ARGS = @(
-    "-cp", ".;$TOMCAT_PATH\lib\servlet-api.jar;src/main/webapp/WEB-INF/lib/*",
-    "-d", "$CLASSES_PATH",
-    "src/main/java/com/sbms/util/*.java",
-    "src/main/java/com/sbms/servlet/*.java"
-)
-javac @JAVAC_ARGS
+javac -cp ".;$TOMCAT_PATH\lib\servlet-api.jar;src/main/webapp/WEB-INF/lib/*" -d "$CLASSES_PATH" src/main/java/com/sbms/util/*.java src/main/java/com/sbms/servlet/*.java
 
 if ($LASTEXITCODE -ne 0) {
     Write-Error "Compilation failed. Please check for missing JARs or errors above."
